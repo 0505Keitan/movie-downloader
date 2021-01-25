@@ -2,7 +2,7 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const path = require('path');
 const exec = require('child_process').exec;
-const os = require("os").userInfo();
+const os = require("os");
 
 const args = process.argv;
 if(!args[2]){
@@ -23,7 +23,11 @@ if(args[2] === '-d' || args[2] === '--download'){
   if(!args[3].match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/gm)){ console.log('ytを指定してください。'); return}
   console.log('downloading...')
   ytdl.getBasicInfo(args[3]).then(info => {
-    ytdl(args[3]).pipe(fs.createWriteStream(`/Users/${os.username}/Downloads/${info.player_response.videoDetails.title.replace(/\//g, ' - ')}.mp4`));
+    if(os.platform() == 'linux'){
+      ytdl(args[3]).pipe(fs.createWriteStream(`/home/${os.userInfo().username}/${info.player_response.videoDetails.title.replace(/\//g, ' - ')}.mp4`));
+    }else if(os.platform() == 'darwin'){
+      ytdl(args[3]).pipe(fs.createWriteStream(`/Users/${os.userInfo().username}/Downloads/${info.player_response.videoDetails.title.replace(/\//g, ' - ')}.mp4`));
+    }
     console.log('download success');
   });
 }else if(args[2] === '-c' || args[2] === '--convert'){
